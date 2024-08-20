@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="ecomm.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="216"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title=".Browsables" custom_title="0" dock_id="1" table="0,10:Browsables"/><dock_state state="000000ff00000000fd00000001000000020000000000000000fc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000ffffffff0000011e00ffffff000000000000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1*">-- Create Users table
+CREATE TABLE Users (
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE
+);
+
+-- Create Products table
+CREATE TABLE Products (
+    product_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_name TEXT NOT NULL,
+    description TEXT,
+    price REAL NOT NULL
+);
+
+-- Create Payments table
+CREATE TABLE Payments (
+    payment_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    amount REAL NOT NULL,
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Shipping table
+CREATE TABLE Shipping (
+    shipping_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    address TEXT NOT NULL,
+    city TEXT NOT NULL,
+    postal_code TEXT NOT NULL,
+    country TEXT NOT NULL,
+    shipped_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Orders table
+CREATE TABLE Orders (
+    order_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    product_id INTEGER,
+    quantity INTEGER NOT NULL,
+    total_price REAL NOT NULL,
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status TEXT NOT NULL,
+    payment_id INTEGER UNIQUE,
+    shipping_id INTEGER UNIQUE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    FOREIGN KEY (product_id) REFERENCES Products(product_id),
+    FOREIGN KEY (payment_id) REFERENCES Payments(payment_id),
+    FOREIGN KEY (shipping_id) REFERENCES Shipping(shipping_id)
+);
+
+-- Create Ratings table
+CREATE TABLE Ratings (
+    rating_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER,
+    rating INTEGER NOT NULL,
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+
+-- Create Shops table
+CREATE TABLE Shops (
+    shop_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    shop_name TEXT NOT NULL,
+    location TEXT NOT NULL
+);
+
+-- Create ShopOwners table
+CREATE TABLE ShopOwners (
+    owner_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner_name TEXT NOT NULL,
+    age INTEGER,
+    date_of_birth DATE
+);
+
+-- Create SHOP_OWN_ENTITY junction table
+CREATE TABLE SHOP_OWN_ENTITY (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    shop_id INTEGER,
+    shop_owner_id INTEGER,
+    FOREIGN KEY (shop_id) REFERENCES Shops(shop_id),
+    FOREIGN KEY (shop_owner_id) REFERENCES ShopOwners(owner_id)
+);
+
+-- Create SHOP_PRODUCT junction table
+CREATE TABLE SHOP_PRODUCT (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    shop_id INTEGER,
+    product_id INTEGER,
+    FOREIGN KEY (shop_id) REFERENCES Shops(shop_id),
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+);
+
+-- Create ProductCategories table
+CREATE TABLE ProductCategories (
+    category_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_name TEXT NOT NULL
+);
+
+-- Create PRODUCT_CATEGORY junction table
+CREATE TABLE PRODUCT_CATEGORY (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id INTEGER,
+    category_id INTEGER,
+    FOREIGN KEY (product_id) REFERENCES Products(product_id),
+    FOREIGN KEY (category_id) REFERENCES ProductCategories(category_id)
+);
+
+-- Insert sample data into Users table
+INSERT INTO Users (username, password_hash, email) VALUES
+('john_doe', 'hashedpassword1', 'john.doe@example.com'),
+('jane_smith', 'hashedpassword2', 'jane.smith@example.com'),
+('alice_johnson', 'hashedpassword3', 'alice.johnson@example.com');
+
+-- Insert sample data into Products table
+INSERT INTO Products (product_name, description, price) VALUES
+('Jeans', 'Blue denim jeans', 49.99),
+('T-shirt', 'Cotton t-shirt', 19.99),
+('Sneakers', 'Running sneakers', 89.99);
+
+-- Insert sample data into Payments table
+INSERT INTO Payments (amount, payment_date) VALUES
+(99.98, '2024-08-01 10:00:00'),
+(19.99, '2024-08-02 11:00:00'),
+(89.99, '2024-08-03 12:00:00');
+
+-- Insert sample data into Ratings table
+INSERT INTO Ratings (product_id, rating) VALUES
+(1, 5),
+(2, 4),
+(3, 3);
+
+-- Insert sample data into Shops table
+INSERT INTO Shops (shop_name, location) VALUES
+('Fashion Hub', '123 Main St'),
+('Tech Store', '456 Elm St'),
+('Sports Gear', '789 Oak St');
+
+-- Insert sample data into ShopOwners table
+INSERT INTO ShopOwners (owner_name, age, date_of_birth) VALUES
+('Emma Brown', 34, '1990-05-15'),
+('Liam Davis', 42, '1982-10-22'),
+('Olivia Wilson', 29, '1995-02-10');
+
+-- Insert sample data into SHOP_OWN_ENTITY junction table
+INSERT INTO SHOP_OWN_ENTITY (shop_id, shop_owner_id) VALUES
+(1, 1),
+(2, 2),
+(3, 3);
+
+-- Insert sample data into SHOP_PRODUCT junction table
+INSERT INTO SHOP_PRODUCT (shop_id, product_id) VALUES
+(1, 1),
+(1, 2),
+(2, 3),
+(3, 1),
+(3, 3);
+
+-- Insert sample data into ProductCategories table
+INSERT INTO ProductCategories (category_name) VALUES
+('Casual Wear'),
+('Electronics'),
+('Footwear');
+
+-- Insert sample data into PRODUCT_CATEGORY junction table
+INSERT INTO PRODUCT_CATEGORY (product_id, category_id) VALUES
+(1, 1),
+(2, 1),
+(3, 3);
+
+-- Insert sample data into Shipping table
+INSERT INTO Shipping (address, city, postal_code, country, shipped_date) VALUES
+('10 Market St', 'New York', '10001', 'USA', '2024-08-01 15:00:00'),
+('22 Broad St', 'San Francisco', '94105', 'USA', '2024-08-02 16:00:00'),
+('33 Wall St', 'Chicago', '60601', 'USA', '2024-08-03 17:00:00');
+
+-- Insert sample data into Orders table
+INSERT INTO Orders (user_id, product_id, quantity, total_price, status, payment_id, shipping_id) VALUES
+(1, 1, 2, 99.98, 'Shipped', 1, 1),
+(2, 2, 1, 19.99, 'Processing', 2, 2),
+(3, 3, 1, 89.99, 'Delivered', 3, 3);</sql><current_tab id="0"/></tab_sql></sqlb_project>
